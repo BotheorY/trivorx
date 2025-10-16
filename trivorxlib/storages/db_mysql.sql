@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `login` varchar(250) NOT NULL,
   `password` varchar(250) NOT NULL,
   `token` varchar(128) NOT NULL,
+  `2fa_seed` varchar(255) DEFAULT NULL,
   `role` enum('ADMIN','STANDARD') NOT NULL DEFAULT 'STANDARD',
   `enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
   `deleted` tinyint(1) unsigned NOT NULL DEFAULT 0,

@@ -6,6 +6,7 @@ from mysql.connector.connection_cext import CMySQLConnection
 from mysql.connector import Error as MySQLError
 import warnings
 import pathlib
+import json
 
 class TXSQLBuilder:
     """SQL generator for TXQueryNode trees supporting CRUD operations (MySQL dialect).
@@ -340,6 +341,7 @@ class TXMySQLStorage(TXStorageBase):
                 "password",
                 "token",
                 "role",
+                "2fa_seed",
                 "enabled",
                 "UNIX_TIMESTAMP(creation_datetime) AS creation_ts"
             ],
@@ -368,6 +370,7 @@ class TXMySQLStorage(TXStorageBase):
                 user.role = TXUserRole.STANDARD
             user.full_name = row["full_name"]
             user.login = row["login"]
+            user.twofa_seed = row.get("2fa_seed")
             user.enabled = bool(row["enabled"])
             user.creation_datetime = int(row["creation_ts"])            
             users.append(user)
@@ -382,7 +385,8 @@ class TXMySQLStorage(TXStorageBase):
         password: str | None = None,
         role: TXUserRole | None = None,
         enabled: bool | None = None,
-        encrypted_password: str | None = None
+        encrypted_password: str | None = None,
+        twofa_seed: str | None = None
     ) -> None:
         """
         Update an existing user in the storage.        
@@ -403,6 +407,8 @@ class TXMySQLStorage(TXStorageBase):
             data["role"] = role.value
         if enabled is not None:
             data["enabled"] = int(enabled)
+        # Always synchronize 2FA seed; allow NULL when value is None
+        data["2fa_seed"] = twofa_seed
         sql, params = TXSQLBuilder.update(
             table="user",
             data=data,
@@ -447,7 +453,8 @@ class TXMySQLStorage(TXStorageBase):
         password: str | None = None,
         encrypted_password: str | None = None,
         uuid: str | None = None,
-        token: str | None = None
+        token: str | None = None,
+        twofa_seed: str | None = None
     ) -> tuple[str, str]:
         """
         Insert a new user into the storage.
@@ -461,22 +468,15 @@ class TXMySQLStorage(TXStorageBase):
             raise ValueError("Either password or encrypted_password must be provided.")
         sql, params = TXSQLBuilder.insert(
             table="user",
-            columns=[
-                "user_uuid",
-                "full_name",
-                "login",
-                "password",
-                "token",
-                "role",
-            ],
-            values=[
-                uuid,
-                full_name,
-                login,
-                encrypted_password,
-                token,
-                role.value,
-            ],
+            data={
+                "user_uuid": uuid,
+                "full_name": full_name,
+                "login": login,
+                "password": encrypted_password,
+                "token": token,
+                "role": role.value,
+                "2fa_seed": twofa_seed,
+            },
         )
         try:
             cursor = self._conn.cursor()

@@ -76,6 +76,7 @@ class TXUserBase(ABC):
     _login: str = None
     _enabled: bool = True
     _creation_datetime: int = None
+    _twofa_seed: str | None = None
     def __init__(self, uuid: str = None, token: str = None, encrypted_password: str = None):
         self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
         self._token = TXUtils.generate_token() if token is None else token
@@ -123,6 +124,14 @@ class TXUserBase(ABC):
     @login.setter
     def login(self, value: str) -> None:
         self._login = value    
+    @property
+    def twofa_seed(self) -> str | None:
+        return self._twofa_seed
+    @twofa_seed.setter
+    def twofa_seed(self, value: str | None) -> None:
+        if value is not None and not isinstance(value, str):
+            raise ValueError("2fa_seed must be a string or None")
+        self._twofa_seed = value
     @property
     def enabled(self) -> bool:
         return self._enabled

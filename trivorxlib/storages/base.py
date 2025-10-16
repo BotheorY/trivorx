@@ -225,7 +225,8 @@ class TXStorageBase(ABC):
         password: str | None = None,
         encrypted_password: str | None = None,
         uuid: str | None = None,
-        token: str | None = None
+        token: str | None = None,
+        twofa_seed: str | None = None
     ) -> tuple[str, str]:
         """
         Insert a new user into the storage.
@@ -235,6 +236,7 @@ class TXStorageBase(ABC):
             login: The login of the user.
             password: The password of the user.
             role: The role of the user.
+            twofa_seed: Optional 2FA seed string or None for no 2FA.
 
         Returns:
             A tuple containing:
@@ -244,7 +246,7 @@ class TXStorageBase(ABC):
         pass
     
     @abstractmethod
-    def update_user(self, uuid: str, token: str | None = None, full_name: str | None = None, login: str | None = None, password: str | None = None, role: TXUserRole | None = None, enabled: bool | None = None, encrypted_password: str | None = None) -> None:
+    def update_user(self, uuid: str, token: str | None = None, full_name: str | None = None, login: str | None = None, password: str | None = None, role: TXUserRole | None = None, enabled: bool | None = None, encrypted_password: str | None = None, twofa_seed: str | None = None) -> None:
         """
         Update an existing user in the storage.        
 
@@ -255,6 +257,7 @@ class TXStorageBase(ABC):
             password: Optional new password.
             role: Optional new role.
             enabled: Optional new enabled status.
+            twofa_seed: Optional 2FA seed string, may be None to clear.
         """
         pass
 

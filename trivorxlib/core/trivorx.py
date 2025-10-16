@@ -29,6 +29,7 @@ class TXUser(TXUserBase):
         self.role = user_base.role
         self.full_name = user_base.full_name
         self.login = user_base.login
+        self.twofa_seed = user_base.twofa_seed
         self.enabled = user_base.enabled
         self.creation_datetime = user_base.creation_datetime
         self._stored = False
@@ -37,9 +38,28 @@ class TXUser(TXUserBase):
 
     def save(self):
         if self._stored:
-            self._storage.update_user(self.uuid, self.token, self.full_name, self.login, None, self.role, self.enabled, self._encrypted_password)
+            self._storage.update_user(
+                uuid=self.uuid,
+                token=self.token,
+                full_name=self.full_name,
+                login=self.login,
+                password=None,
+                role=self.role,
+                enabled=self.enabled,
+                encrypted_password=self._encrypted_password,
+                twofa_seed=self.twofa_seed,
+            )
         else:
-            self._storage.insert_user(self.full_name, self.login, self.role, None, self._encrypted_password, self.uuid, self.token)
+            self._storage.insert_user(
+                full_name=self.full_name,
+                login=self.login,
+                role=self.role,
+                password=None,
+                encrypted_password=self._encrypted_password,
+                uuid=self.uuid,
+                token=self.token,
+                twofa_seed=self.twofa_seed,
+            )
             self._stored = True
     
     
