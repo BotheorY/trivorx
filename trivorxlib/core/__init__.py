@@ -1,3 +1,5 @@
-from .base import TXUtils, TXUserBase, TXUserRole
+from .base import TXUtils, TXUserBase, TXUserRole, TXBotBase, TXTransOperationalMode, TXCurrencyBase, TXCurrencyType, TXCurrencyExchangeBase, TXExchangeDataSourceBase, TXCurrencyExchangeBase, TXExchangeDataSourceConnectionDataBase, TXFinancialHubBase, TXFinancialHubConnectionDataBase, TXWalletBase, TXAssetType, TXTransStatus, TXTransactionBase
 
-__all__ = ["TXUtils", "TXUserBase", "TXUserRole"]
+from .trivorx import TXUser, TXBot, TXCurrency, TXExchangeDataSource, TXCurrencyExchange, TXExchangeDataSourceConnectionData, TXFinancialHub, TXFinancialHubConnectionData, TXWallet, TXTransaction
+
+__all__ = ["TXUtils", "TXUserBase", "TXUserRole", "TXBotBase", "TXTransOperationalMode", "TXUser", "TXBot", "TXCurrencyBase", "TXCurrencyType", "TXCurrencyExchangeBase", "TXCurrency", "TXExchangeDataSourceBase", "TXExchangeDataSource", "TXCurrencyExchange", "TXExchangeDataSourceConnectionDataBase", "TXExchangeDataSourceConnectionData", "TXFinancialHubBase", "TXFinancialHubConnectionDataBase", "TXFinancialHub", "TXFinancialHubConnectionData", "TXWalletBase", "TXWallet", "TXAssetType", "TXTransStatus", "TXTransactionBase", "TXTransaction"]

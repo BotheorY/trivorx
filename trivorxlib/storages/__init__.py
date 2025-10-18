@@ -11,15 +11,12 @@ from .base import (
     TXCondition,
     TXUnaryQuery,
     TXLogicalQuery,
-    txquery_from_dict,
     TXSortDirection,
     TXSortCriterion,
-    txsort_from_dict,
     TXStorageBase,
 )
 
 from .mysql import (
-    TXSQLBuilder,
     TXMySQLStorage,
 )
 
@@ -30,14 +27,11 @@ __all__ = [
     "TXCondition",
     "TXUnaryQuery",
     "TXLogicalQuery",
-    "txquery_from_dict",
     # Sorting
     "TXSortDirection",
     "TXSortCriterion",
-    "txsort_from_dict",
     # Base interface
     "TXStorageBase",
     # MySQL backend
-    "TXSQLBuilder",
     "TXMySQLStorage",
 ]

@@ -148,7 +148,7 @@ class TXUserBase(ABC):
 class TXAssetBase(ABC):
     _uuid: str
     def __init__(self, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
     @property
     def uuid(self) -> str:
         return self._uuid
@@ -173,134 +173,143 @@ class TXCurrencyType(Enum):
     FIAT = "FIAT"
     CRYPTO = "CRYPTO"
 
-class TXCurrencyBase(ABC):
+class TXCurrencyBase():
     _uuid: str
-    def __init__(self, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
+    _long_name: str = None
+    _short_name: str = None
+    _currency_type: TXCurrencyType = None
+    def __init__(
+        self,
+        long_name: str,
+        short_name: str,
+        currency_type: TXCurrencyType,
+        uuid: str = None
+    ):
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
+        self.long_name = long_name
+        self.short_name = short_name
+        self.currency_type = currency_type
     @property
     def uuid(self) -> str:
         return self._uuid
     @property
-    @abstractmethod
     def long_name(self) -> str:
-        pass
+        return self._long_name
     @long_name.setter
-    @abstractmethod
     def long_name(self, value: str) -> None:
-        pass
+        self._long_name = value
     @property
-    @abstractmethod
     def short_name(self) -> str:
-        pass
+        return self._short_name
     @short_name.setter
-    @abstractmethod
     def short_name(self, value: str) -> None:
-        pass
+        self._short_name = value
     @property
-    @abstractmethod
     def currency_type(self) -> TXCurrencyType:
-        pass
+        return self._currency_type
     @currency_type.setter
-    @abstractmethod
     def currency_type(self, value: TXCurrencyType) -> None:
         if not isinstance(value, TXCurrencyType):
             raise ValueError(f"Currency type must be a TXCurrencyType enum value")
-        pass
+        self._currency_type = value
 
 class TXExchangeDataSourceBase():
     _uuid: str
-    def __init__(self, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
+    _name: str = None
+    _avaiable_currency_types: Set[TXCurrencyType] = None
+    _default_for_types: Set[TXCurrencyType] = None
+    _notes: str = None
+    _connection_data_required: bool = None
+    def __init__(self, name: str, avaiable_currency_types: Set[TXCurrencyType], connection_data_required: bool, uuid: str = None):
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
+        self.name = name
+        self.avaiable_currency_types = avaiable_currency_types
+        self.connection_data_required = connection_data_required
     @property
     def uuid(self) -> str:
         return self._uuid
     @property
-    @abstractmethod
     def name(self) -> str:
-        pass
+        return self._name
     @name.setter
-    @abstractmethod
     def name(self, value: str) -> None:
-        pass
+        self._name = value    
     @property
-    @abstractmethod
     def avaiable_currency_types(self) -> Set[TXCurrencyType]:
-        pass
+        return self._avaiable_currency_types
     @avaiable_currency_types.setter
-    @abstractmethod
     def avaiable_currency_types(self, value: Set[TXCurrencyType]) -> None:
         if (not isinstance(value, set)) or (not all(isinstance(item, TXCurrencyType) for item in value)):
             raise ValueError(f"Currency types must be a set of TXCurrencyType enum values")
-        pass
+        self._avaiable_currency_types = value
     @property
-    @abstractmethod
     def default_for_types(self) -> Set[TXCurrencyType]:
-        pass
+        return self._default_for_types
     @default_for_types.setter
-    @abstractmethod
     def default_for_types(self, value: Set[TXCurrencyType]) -> None:
         if (not isinstance(value, set)) or (not all(isinstance(item, TXCurrencyType) for item in value)):
             raise ValueError(f"Currency types must be a set of TXCurrencyType enum values")
-        pass
+        self._default_for_types = value
     @property
-    @abstractmethod
     def connection_data_required(self) -> bool:
-        pass
+        return self._connection_data_required
     @connection_data_required.setter
-    @abstractmethod
     def connection_data_required(self, value: bool) -> None:
-        pass
+        self._connection_data_required = value
+    @property
+    def notes(self) -> str:
+        return self._notes
+    @notes.setter
+    def notes(self, value: str) -> None:
+        self._notes = value
 
-class TXCurrencyExchangeBase(ABC):
+class TXCurrencyExchangeBase():
     _uuid: str
-    _data_source: TXExchangeDataSourceBase
-    def __init__(self, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
-        self.data_source = None       
+    _data_source: TXExchangeDataSourceBase = None
+    _currency_source: TXCurrencyBase
+    _currency_target: TXCurrencyBase
+    _value: float = None
+    _datetime: int = None
+    def __init__(self, currency_source: TXCurrencyBase, currency_target: TXCurrencyBase, value: float, datetime: int, uuid: str = None):
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
+        self.currency_source = currency_source
+        self.currency_target = currency_target
+        self.value = value
+        self.datetime = datetime
     @property
     def uuid(self) -> str:
         return self._uuid
     @property
-    @abstractmethod
-    def source(self) -> TXCurrencyBase:
-        pass
-    @source.setter
-    @abstractmethod
-    def source(self, value: TXCurrencyBase) -> None:
-        pass
+    def value(self) -> float:
+        return self._value
+    @value.setter
+    def value(self, value: float) -> None:
+        TXUtils.validate_float_precision(value, 25, 13)
+        self._value = value
     @property
-    @abstractmethod
-    def target(self) -> TXCurrencyBase:
-        pass
-    @target.setter
-    @abstractmethod
-    def target(self, value: TXCurrencyBase) -> None:
-        pass
+    def datetime(self) -> int:
+        return self._datetime
+    @datetime.setter
+    def datetime(self, value: int) -> None:
+        self._datetime = value
     @property
-    @abstractmethod
+    def currency_source(self) -> TXCurrencyBase:
+        return self._currency_source
+    @currency_source.setter
+    def currency_source(self, value: TXCurrencyBase) -> None:
+        self._currency_source = value
+    @property
+    def currency_target(self) -> TXCurrencyBase:
+        return self._currency_target
+    @currency_target.setter
+    def currency_target(self, value: TXCurrencyBase) -> None:
+        self._currency_target = value
+    @property
     def data_source(self) -> TXExchangeDataSourceBase:
         return self._data_source
     @data_source.setter
-    @abstractmethod
     def data_source(self, value: TXExchangeDataSourceBase) -> None:
         self._data_source = value
-    @property
-    @abstractmethod
-    def value(self) -> float:
-        pass
-    @value.setter
-    @abstractmethod 
-    def value(self, value: float) -> None:
-        TXUtils.validate_float_precision(value, 25, 13)
-        pass
-    @property
-    @abstractmethod
-    def datetime(self) -> int:
-        pass    
-    @datetime.setter
-    @abstractmethod
-    def datetime(self, value: int) -> None:
-        pass
 
 class TXExchangeDataSourceConnectionDataBase():
     _uuid: str
@@ -308,7 +317,7 @@ class TXExchangeDataSourceConnectionDataBase():
     _data_source: TXExchangeDataSourceBase
     _connection_data: str
     def __init__(self, user: TXUserBase, data_source: TXExchangeDataSourceBase, connection_data: str, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
         self._user = user
         self._data_source = data_source
         self.connection_data = connection_data  # Use the setter to validate JSON
@@ -340,28 +349,38 @@ class TXAssetType(Enum):
     CURRENCY_FIAT = "CURRENCY_FIAT"
     CURRENCY_CRYPTO = "CURRENCY_CRYPTO"
 
-class TXFinancialHubBase(ABC):
+class TXFinancialHubBase():
     _uuid: str
-    def __init__(self, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
+    _name: str
+    _allowed_operations: Set[TXAssetType]
+    _notes: str
+    def __init__(self, name: str, allowed_operations: Set[TXAssetType], uuid: str = None):
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
+        self.name = name
+        self.allowed_operations = allowed_operations
     @property
-    @abstractmethod
+    def uuid(self) -> str:
+        return self._uuid
+    @property
     def name(self) -> str:
-        pass
+        return self._name
     @name.setter
-    @abstractmethod
     def name(self, value: str) -> None:
-        pass
+        self._name = value
     @property
-    @abstractmethod
     def allowed_operations(self) -> Set[TXAssetType]:
-        pass
+        return self._allowed_operations
     @allowed_operations.setter
-    @abstractmethod
     def allowed_operations(self, value: Set[TXAssetType]) -> None:
         if (not isinstance(value, set)) or (not all(isinstance(item, TXAssetType) for item in value)):
             raise ValueError(f"allowed_operations must be a set of TXAssetType enum values")
-        pass
+        self._allowed_operations = value
+    @property
+    def notes(self) -> str:
+        return self._notes
+    @notes.setter
+    def notes(self, value: str) -> None:
+        self._notes = value
 
 class TXFinancialHubConnectionDataBase():
     _uuid: str
@@ -396,22 +415,27 @@ class TXFinancialHubConnectionDataBase():
         TXUtils.validate_json(value)
         self._connection_data = value
 
-class TXWalletBase(ABC):
+class TXWalletBase():
     _uuid: str
     _user: TXUserBase
     _financial_hub: TXFinancialHubBase
-    _asset: TXAssetBase
+    _asset: TXAssetBase = None
     _currency: TXCurrencyBase
-    _details_data: str
-    _connection_data: str
-    def __init__(self, user: TXUserBase, financial_hub: TXFinancialHubBase, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
+    _name: str
+    _content_type: TXAssetType
+    _initial_value: float = None
+    _initial_value_datetime: int = None
+    _total_value: float = None
+    _total_value_datetime: int = None
+    _details_data: str = None
+    _connection_data: str = None
+    def __init__(self, user: TXUserBase, financial_hub: TXFinancialHubBase, currency: TXCurrencyBase, name: str, content_type: TXAssetType, uuid: str = None):
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
         self.user = user
         self.financial_hub = financial_hub
-        self.asset = None
-        self.currency = None
-        self.connection_data = None
-        self.details_data = None
+        self.currency = currency
+        self.name = name
+        self.content_type = content_type
     @property
     def uuid(self) -> str:
         return self._uuid
@@ -428,31 +452,33 @@ class TXWalletBase(ABC):
     def financial_hub(self, value: TXFinancialHubBase) -> None:
         self._financial_hub = value
     @property
-    @abstractmethod
     def asset(self) -> TXAssetBase:
         return self._asset
     @asset.setter
-    @abstractmethod
     def asset(self, value: TXAssetBase) -> None:
         self._asset = value
         pass
     @property
-    @abstractmethod
     def currency(self) -> TXCurrencyBase:
         return self._currency
     @currency.setter
-    @abstractmethod
     def currency(self, value: TXCurrencyBase) -> None:
         self._currency = value
         pass
     @property
-    @abstractmethod
     def name(self) -> str:
-        pass
+        return self._name
     @name.setter
-    @abstractmethod
     def name(self, value: str) -> None:
-        pass
+        self._name = value
+    @property
+    def content_type(self) -> TXAssetType:
+        return self._content_type
+    @content_type.setter
+    def content_type(self, value: TXAssetType) -> None:
+        if not isinstance(value, TXAssetType):
+            raise ValueError("content_type must be a TXAssetType")
+        self._content_type = value
     @property
     def details_data(self) -> str:
         return self._details_data
@@ -461,39 +487,31 @@ class TXWalletBase(ABC):
         TXUtils.validate_json(value)
         self._details_data = value
     @property
-    @abstractmethod
     def initial_value(self) -> float:
-        pass
+        return self._initial_value
     @initial_value.setter
-    @abstractmethod
     def initial_value(self, value: float) -> None:
         TXUtils.validate_float_precision(value, 25, 10)
-        pass
+        self._initial_value = value
     @property
-    @abstractmethod
     def initial_value_datetime(self) -> int:
-        pass
+        return self._initial_value_datetime
     @initial_value_datetime.setter
-    @abstractmethod
     def initial_value_datetime(self, value: int) -> None:
-        pass
+        self._initial_value_datetime = value
     @property
-    @abstractmethod
     def total_value(self) -> float:
-        pass
+        return self._total_value
     @total_value.setter
-    @abstractmethod
     def total_value(self, value: float) -> None:
         TXUtils.validate_float_precision(value, 25, 10)
-        pass
+        self._total_value = value
     @property
-    @abstractmethod
     def total_value_datetime(self) -> int:
-        pass
+        return self._total_value_datetime
     @total_value_datetime.setter
-    @abstractmethod
     def total_value_datetime(self, value: int) -> None:
-        pass
+        self._total_value_datetime = value  
     @property
     def connection_data(self) -> str:
         return self._connection_data
@@ -502,18 +520,23 @@ class TXWalletBase(ABC):
         TXUtils.validate_json(value)
         self._connection_data = value
 
-class TXBotBase(ABC):
+class TXBotBase():
     _uuid: str
     _user: TXUserBase
     _algo_uuid: str
     _name: str
+    _algo_name: str
     _algo_ver: str
     _algo_settings: str
-    def __init__(self, user: TXUserBase, algo_uuid: str, name: str, algo_ver: str, algo_settings: str, uuid: str = None):
-        self._uuid = str(u.uuid4()) if uuid is None else uuid
+    _annotations: str | None = None
+    _active: bool
+    _creation_datetime: int
+    def __init__(self, user: TXUserBase, algo_uuid: str, name: str, algo_name: str, algo_ver: str, algo_settings: str, uuid: str = None):
+        self._uuid = TXUtils.generate_uuid() if uuid is None else uuid
         self.user = user
         self.algo_uuid = algo_uuid
         self.name = name
+        self.algo_name = algo_name
         self.algo_ver = algo_ver
         self.algo_settings = algo_settings  # Use the setter to validate JSON
     @property
@@ -545,44 +568,35 @@ class TXBotBase(ABC):
     def name(self, value: str) -> None:
         self._name = value
     @property
+    def algo_name(self) -> str:
+        return self._algo_name
+    @algo_name.setter
+    def algo_name(self, value: str) -> None:
+        self._algo_name = value
+    @property
     def algo_ver(self) -> str:
         return self._algo_ver
     @algo_ver.setter
     def algo_ver(self, value: str) -> None:
         self._algo_ver = value
     @property
-    @abstractmethod
-    def annotations(self) -> str:
-        pass
+    def annotations(self) -> str | None:
+        return self._annotations
     @annotations.setter
-    @abstractmethod
-    def annotations(self, value: str) -> None:
-        pass
+    def annotations(self, value: str | None) -> None:
+        self._annotations = value
     @property
-    @abstractmethod
     def active(self) -> bool:
-        pass
+        return self._active
     @active.setter
-    @abstractmethod
     def active(self, value: bool) -> None:
-        pass
+        self._active = value
     @property
-    @abstractmethod
-    def deleted(self) -> bool:
-        pass
-    @deleted.setter
-    @abstractmethod
-    def deleted(self, value: bool) -> None:
-        pass
-    @property
-    @abstractmethod
-    def creation_datetime(self) -> int:
-        pass
+    def creation_datetime(self) -> int | None:
+        return self._creation_datetime
     @creation_datetime.setter
-    @abstractmethod
-    def creation_datetime(self, value: int) -> None:
-        pass
-
+    def creation_datetime(self, value: int | None) -> None:
+        self._creation_datetime = value
 class TXTransOperationalMode(Enum):
     ORDER_CREATION = 'ORDER CREATION'
     TRANSFER = 'TRANSFER'
@@ -596,105 +610,96 @@ class TXTransStatus(Enum):
     OTHER = 'OTHER'
     UNKNOWN = 'UNKNOWN'
 
-class TXTransactionBase(ABC):
+class TXTransactionBase():
     _uuid: str
-    _oder: int
+    _origin_transaction: 'TXTransactionBase' | None = None
+    _source_wallet: TXWalletBase | None = None
+    _target_wallet: TXWalletBase | None = None
+    _bot: TXBotBase | None = None
+    _start_datetime: int | None = None
+    _end_datetime: int | None = None
+    _operational_mode: TXTransOperationalMode | None = None
+    _source_value: float | None = None
+    _target_value: float | None = None
+    _status: TXTransStatus | None = None
+    _annotations: str | None = None
+    _order: int = 0
     def __init__(self, uuid: str = None):
         self._uuid = str(u.uuid4()) if uuid is None else uuid
-        self.order = 0
+    @property
+    def uuid(self) -> str:
+        return self._uuid
+    @property
+    def origin_transaction(self) -> 'TXTransactionBase':
+        return self._origin_transaction
+    @origin_transaction.setter
+    def origin_transaction(self, value: 'TXTransactionBase') -> None:
+        self._origin_transaction = value
+    @property
+    def source_wallet(self) -> TXWalletBase:
+        return self._source_wallet
+    @source_wallet.setter
+    def source_wallet(self, value: TXWalletBase) -> None:
+        self._source_wallet = value
+    @property
+    def target_wallet(self) -> TXWalletBase:
+        return self._target_wallet
+    @target_wallet.setter
+    def target_wallet(self, value: TXWalletBase) -> None:
+        self._target_wallet = value
+    @property
+    def bot(self) -> TXBotBase:
+        return self._bot
+    @bot.setter
+    def bot(self, value: TXBotBase) -> None:
+        self._bot = value
+    @property
+    def start_datetime(self) -> int:
+        return self._start_datetime
+    @start_datetime.setter
+    def start_datetime(self, value: int) -> None:
+        self._start_datetime = value
+    @property
+    def end_datetime(self) -> int:
+        return self._end_datetime
+    @end_datetime.setter
+    def end_datetime(self, value: int) -> None:
+        self._end_datetime = value
+    @property
+    def operational_mode(self) -> TXTransOperationalMode:
+        return self._operational_mode
+    @operational_mode.setter
+    def operational_mode(self, value: TXTransOperationalMode) -> None:
+        self._operational_mode = value
+    @property
+    def source_value(self) -> float:
+        return self._source_value
+    @source_value.setter
+    def source_value(self, value: float) -> None:
+        TXUtils.validate_float_precision(value, 25, 10)
+        self._source_value = value
+    @property
+    def target_value(self) -> float:
+        return self._target_value
+    @target_value.setter
+    def target_value(self, value: float) -> None:
+        TXUtils.validate_float_precision(value, 25, 10)
+        self._target_value = value
+    @property
+    def status(self) -> TXTransStatus:
+        return self._status
+    @status.setter
+    def status(self, value: TXTransStatus) -> None:
+        self._status = value
+    @property
+    def annotations(self) -> str | None:
+        return self._annotations
+    @annotations.setter
+    def annotations(self, value: str | None) -> None:
+        self._annotations = value
     @property
     def order(self) -> int:
         return self._order
     @order.setter
     def order(self, value: int) -> None:
         self._order = value
-    @property
-    @abstractmethod
-    def origin_order(self) -> 'TXTransactionBase':
-        pass
-    @origin_order.setter
-    @abstractmethod
-    def origin_order(self, value: 'TXTransactionBase') -> None:
-        pass
-    @property
-    @abstractmethod
-    def source_wallet(self) -> TXWalletBase:
-        pass
-    @source_wallet.setter
-    @abstractmethod
-    def source_wallet(self, value: TXWalletBase) -> None:
-        pass
-    @property
-    @abstractmethod
-    def target_wallet(self) -> TXWalletBase:
-        pass
-    @target_wallet.setter
-    @abstractmethod
-    def target_wallet(self, value: TXWalletBase) -> None:
-        pass
-    @property
-    @abstractmethod
-    def bot(self) -> TXBotBase:
-        pass
-    @bot.setter
-    @abstractmethod
-    def bot(self, value: TXBotBase) -> None:
-        pass
-    @property
-    @abstractmethod
-    def start_datetime(self) -> int:
-        pass
-    @start_datetime.setter
-    @abstractmethod
-    def start_datetime(self, value: int) -> None:
-        pass
-    @property
-    @abstractmethod
-    def end_datetime(self) -> int:
-        pass
-    @end_datetime.setter
-    @abstractmethod
-    def end_datetime(self, value: int) -> None:
-        pass
-    @property
-    def operational_mode(self) -> TXTransOperationalMode:
-        pass
-    @operational_mode.setter
-    @abstractmethod
-    def operational_mode(self, value: TXTransOperationalMode) -> None:
-        pass
-    @property
-    @abstractmethod
-    def source_value(self) -> float:
-        pass
-    @source_value.setter
-    @abstractmethod
-    def source_value(self, value: float) -> None:
-        TXUtils.validate_float_precision(value, 25, 10)
-        pass
-    @property
-    @abstractmethod
-    def target_value(self) -> float:
-        pass
-    @target_value.setter
-    @abstractmethod
-    def target_value(self, value: float) -> None:
-        TXUtils.validate_float_precision(value, 25, 10)
-        pass
-    @property
-    @abstractmethod
-    def status(self) -> TXTransStatus:
-        pass
-    @status.setter
-    @abstractmethod
-    def status(self, value: TXTransStatus) -> None:
-        pass
-    @property
-    @abstractmethod
-    def annotations(self) -> str:
-        pass
-    @annotations.setter
-    @abstractmethod
-    def annotations(self, value: str) -> None:
-        pass
-

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 from trivorxlib.core import *
+from trivorxlib.core.base import TXBotBase
 import json
 from dataclasses import dataclass
 from typing import Any, Dict
@@ -271,4 +272,713 @@ class TXStorageBase(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_bots(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXBotBase]:
+        """
+        Retrieve a list of bots with optional filtering, pagination, and limit.
 
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of bots matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_bot(
+        self,
+        user_uuid: str,
+        algo_uuid: str,
+        name: str,
+        algo_name: str,
+        algo_ver: str,
+        algo_settings: str,
+        annotations: str | None = None,
+        active: bool | None = None,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new bot into the storage.
+
+        Args:
+            user_uuid: The UUID of the owner user.
+            algo_uuid: The UUID of the algorithm used by the bot.
+            name: Bot name.
+            algo_name: Algorithm name.
+            algo_ver: Algorithm version.
+            algo_settings: JSON string with algorithm settings.
+            annotations: Optional notes.
+            active: Optional active state (default False if None).
+            uuid: Optional bot UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted bot.
+        """
+        pass
+
+    @abstractmethod
+    def update_bot(
+        self,
+        uuid: str,
+        user_uuid: str | None = None,
+        algo_uuid: str | None = None,
+        name: str | None = None,
+        algo_name: str | None = None,
+        algo_ver: str | None = None,
+        algo_settings: str | None = None,
+        annotations: str | None = None,
+        active: bool | None = None,
+    ) -> None:
+        """
+        Update an existing bot in the storage.
+
+        Args:
+            uuid: The UUID of the bot to update.
+            user_uuid: Optional new owner user UUID.
+            algo_uuid: Optional new algorithm UUID.
+            name: Optional new bot name.
+            algo_name: Optional new algorithm name.
+            algo_ver: Optional new algorithm version.
+            algo_settings: Optional JSON string with algorithm settings.
+            annotations: Optional notes.
+            active: Optional active state.
+        """
+        pass
+
+    @abstractmethod
+    def delete_bot(self, uuid: str) -> None:
+        """
+        Soft-delete a bot from the storage.
+
+        Args:
+            uuid: The UUID of the bot to delete.
+        """
+        pass
+
+    @abstractmethod
+    def get_currencies(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXCurrencyBase]:
+        """
+        Retrieve a list of currencies with optional filtering, pagination, and limit.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of currencies matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_currency(
+        self,
+        long_name: str,
+        short_name: str,
+        currency_type: TXCurrencyType,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new currency into the storage.
+
+        Args:
+            long_name: The full name of the currency.
+            short_name: The short name/symbol of the currency.
+            currency_type: The type of currency (FIAT or CRYPTO).
+            uuid: Optional currency UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted currency.
+        """
+        pass
+
+    @abstractmethod
+    def update_currency(
+        self,
+        uuid: str,
+        long_name: str | None = None,
+        short_name: str | None = None,
+        currency_type: TXCurrencyType | None = None,
+    ) -> None:
+        """
+        Update an existing currency in the storage.
+
+        Args:
+            uuid: The UUID of the currency to update.
+            long_name: Optional new full name.
+            short_name: Optional new short name/symbol.
+            currency_type: Optional new currency type.
+        """
+        pass
+
+    @abstractmethod
+    def delete_currency(self, uuid: str) -> None:
+        """
+        Soft-delete a currency from the storage.
+
+        Args:
+            uuid: The UUID of the currency to delete.
+        """
+        pass
+
+    @abstractmethod
+    def get_exchange_data_sources(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXExchangeDataSourceBase]:
+        """
+        Retrieve a list of exchange data sources with optional filtering, pagination, and limit.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of exchange data sources matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_exchange_data_source(
+        self,
+        name: str,
+        available_currency_types: set[TXCurrencyType],
+        connection_data_required: bool,
+        default_for_types: set[TXCurrencyType] | None = None,
+        notes: str | None = None,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new exchange data source into the storage.
+
+        Args:
+            name: The name of the exchange data source.
+            available_currency_types: Set of currency types supported by this source.
+            connection_data_required: Whether connection data is required for this source.
+            default_for_types: Optional set of currency types for which this is the default source.
+            notes: Optional notes about the exchange data source.
+            uuid: Optional exchange data source UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted exchange data source.
+        """
+        pass
+
+    @abstractmethod
+    def update_exchange_data_source(
+        self,
+        uuid: str,
+        name: str | None = None,
+        available_currency_types: set[TXCurrencyType] | None = None,
+        connection_data_required: bool | None = None,
+        default_for_types: set[TXCurrencyType] | None = None,
+        notes: str | None = None,
+    ) -> None:
+        """
+        Update an existing exchange data source in the storage.
+
+        Args:
+            uuid: The UUID of the exchange data source to update.
+            name: Optional new name.
+            available_currency_types: Optional new set of supported currency types.
+            connection_data_required: Optional new connection data requirement flag.
+            default_for_types: Optional new set of default currency types.
+            notes: Optional new notes.
+        """
+        pass
+
+    @abstractmethod
+    def delete_exchange_data_source(self, uuid: str) -> None:
+        """
+        Soft-delete an exchange data source from the storage.
+
+        Args:
+            uuid: The UUID of the exchange data source to delete.
+        """
+        pass
+
+    # --- EXCHANGE DATA SOURCE CONNECTION DATA ---
+    @abstractmethod
+    def get_exchange_data_source_connection_data(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXExchangeDataSourceConnectionDataBase]:
+        """
+        Retrieve a list of exchange data source connection data with optional filtering, ordering, and pagination.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of TXExchangeDataSourceConnectionDataBase matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_exchange_data_source_connection_data(
+        self,
+        exchange_data_source_uuid: str,
+        user_uuid: str,
+        connection_data: str,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new exchange data source connection data row.
+
+        Args:
+            exchange_data_source_uuid: UUID of the exchange data source.
+            user_uuid: UUID of the user owning this connection.
+            connection_data: JSON string containing connection details.
+            uuid: Optional connection data UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted connection data.
+        """
+        pass
+
+    @abstractmethod
+    def update_exchange_data_source_connection_data(
+        self,
+        uuid: str,
+        exchange_data_source_uuid: str | None = None,
+        user_uuid: str | None = None,
+        connection_data: str | None = None,
+    ) -> None:
+        """
+        Update an existing exchange data source connection data row.
+
+        Args:
+            uuid: The UUID of the connection data to update.
+            exchange_data_source_uuid: Optional new data source UUID.
+            user_uuid: Optional new user UUID.
+            connection_data: Optional new connection JSON string.
+        """
+        pass
+
+    @abstractmethod
+    def delete_exchange_data_source_connection_data(self, uuid: str) -> None:
+        """
+        Delete an exchange data source connection data row.
+
+        Args:
+            uuid: The UUID of the connection data to delete.
+        """
+        pass
+
+    @abstractmethod
+    def get_currency_exchanges(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXCurrencyExchangeBase]:
+        """
+        Retrieve a list of currency exchanges with optional filtering, pagination, and limit.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of currency exchanges matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_currency_exchange(
+        self,
+        currency_uuid_source: str,
+        currency_uuid_target: str,
+        value: float,
+        exchange_data_source_uuid: str | None = None,
+        date_time: int | None = None,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new currency exchange into the storage.
+
+        Args:
+            currency_uuid_source: The UUID of the source currency.
+            currency_uuid_target: The UUID of the target currency.
+            value: The exchange rate value.
+            exchange_data_source_uuid: Optional UUID of the exchange data source.
+            uuid: Optional currency exchange UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted currency exchange.
+        """
+        pass
+
+    @abstractmethod
+    def update_currency_exchange(
+        self,
+        uuid: str,
+        currency_uuid_source: str | None = None,
+        currency_uuid_target: str | None = None,
+        value: float | None = None,
+        exchange_data_source_uuid: str | None = None,
+        date_time: int | None = None
+    ) -> None:
+        """
+        Update an existing currency exchange in the storage.
+
+        Args:
+            uuid: The UUID of the currency exchange to update.
+            currency_uuid_source: Optional new source currency UUID.
+            currency_uuid_target: Optional new target currency UUID.
+            value: Optional new exchange rate value.
+            exchange_data_source_uuid: Optional new exchange data source UUID.
+        """
+        pass
+
+    @abstractmethod
+    def delete_currency_exchange(self, uuid: str) -> None:
+        """
+        Delete a currency exchange from the storage.
+
+        Args:
+            uuid: The UUID of the currency exchange to delete.
+        """
+        pass
+
+    @abstractmethod
+    def get_financial_hubs(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXFinancialHubBase]:
+        """
+        Retrieve a list of financial hubs with optional filtering, pagination, and limit.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of financial hubs matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_financial_hub(
+        self,
+        name: str,
+        allowed_operations: set[TXAssetType],
+        notes: str | None = None,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new financial hub into the storage.
+
+        Args:
+            name: The name of the financial hub.
+            allowed_operations: Set of allowed asset operations for the hub.
+            notes: Optional notes about the financial hub.
+            uuid: Optional financial hub UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted financial hub.
+        """
+        pass
+
+    @abstractmethod
+    def update_financial_hub(
+        self,
+        uuid: str,
+        name: str | None = None,
+        allowed_operations: set[TXAssetType] | None = None,
+        notes: str | None = None,
+    ) -> None:
+        """
+        Update an existing financial hub in the storage.
+
+        Args:
+            uuid: The UUID of the financial hub to update.
+            name: Optional new name.
+            allowed_operations: Optional new set of allowed asset operations.
+            notes: Optional new notes.
+        """
+        pass
+
+    @abstractmethod
+    def delete_financial_hub(self, uuid: str) -> None:
+        """
+        Soft-delete a financial hub from the storage.
+
+        Args:
+            uuid: The UUID of the financial hub to delete.
+        """
+        pass
+
+    # --- FINANCIAL HUB CONNECTION DATA ---
+    @abstractmethod
+    def get_financial_hub_connection_data(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXFinancialHubConnectionDataBase]:
+        """
+        Retrieve a list of financial hub connection data with optional filtering, ordering, and pagination.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of TXFinancialHubConnectionDataBase matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_financial_hub_connection_data(
+        self,
+        financial_hub_uuid: str,
+        user_uuid: str,
+        connection_data: str,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new financial hub connection data row.
+
+        Args:
+            financial_hub_uuid: UUID of the financial hub.
+            user_uuid: UUID of the user owning this connection.
+            connection_data: JSON string containing connection details.
+            uuid: Optional connection data UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted connection data.
+        """
+        pass
+
+    @abstractmethod
+    def update_financial_hub_connection_data(
+        self,
+        uuid: str,
+        financial_hub_uuid: str | None = None,
+        user_uuid: str | None = None,
+        connection_data: str | None = None,
+    ) -> None:
+        """
+        Update an existing financial hub connection data row.
+
+        Args:
+            uuid: The UUID of the connection data to update.
+            financial_hub_uuid: Optional new financial hub UUID.
+            user_uuid: Optional new user UUID.
+            connection_data: Optional new connection JSON string.
+        """
+        pass
+
+    @abstractmethod
+    def delete_financial_hub_connection_data(self, uuid: str) -> None:
+        """
+        Delete a financial hub connection data row.
+
+        Args:
+            uuid: The UUID of the connection data to delete.
+        """
+        pass
+
+    # --- WALLETS ---
+    @abstractmethod
+    def get_wallets(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXWalletBase]:
+        """
+        Retrieve a list of wallets with optional filtering, ordering, and pagination.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of TXWalletBase matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_wallet(
+        self,
+        user_uuid: str,
+        financial_hub_uuid: str,
+        name: str,
+        content_type: TXAssetType,
+        currency_uuid: str | None = None,
+        details_data: str | None = None,
+        initial_value: float | None = None,
+        initial_value_datetime: int | None = None,
+        total_value: float | None = None,
+        total_value_datetime: int | None = None,
+        connection_data: str | None = None,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new wallet into the storage.
+
+        Args:
+            user_uuid: UUID of the wallet owner.
+            financial_hub_uuid: UUID of the financial hub for this wallet.
+            name: Wallet display name.
+            content_type: Type of wallet content (asset or currency variants).
+            asset_uuid: Optional asset UUID when content_type is ASSET.
+            currency_uuid: Optional currency UUID when content_type is CURRENCY_*.
+            details_data: Optional JSON with additional details.
+            initial_value: Optional initial value.
+            initial_value_datetime: Optional UNIX timestamp for initial value.
+            total_value: Optional total value.
+            total_value_datetime: Optional UNIX timestamp for total value.
+            connection_data: Optional JSON with connection details.
+            uuid: Optional wallet UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted wallet.
+        """
+        pass
+
+    @abstractmethod
+    def update_wallet(
+        self,
+        uuid: str,
+        user_uuid: str | None = None,
+        financial_hub_uuid: str | None = None,
+        name: str | None = None,
+        content_type: TXAssetType | None = None,
+        currency_uuid: str | None = None,
+        details_data: str | None = None,
+        initial_value: float | None = None,
+        initial_value_datetime: int | None = None,
+        total_value: float | None = None,
+        total_value_datetime: int | None = None,
+        connection_data: str | None = None,
+    ) -> None:
+        """
+        Update an existing wallet in the storage.
+
+        Args:
+            uuid: The UUID of the wallet to update.
+            user_uuid: Optional new owner UUID.
+            financial_hub_uuid: Optional new financial hub UUID.
+            name: Optional new wallet name.
+            content_type: Optional new content type.
+            asset_uuid: Optional new asset UUID.
+            currency_uuid: Optional new currency UUID.
+            details_data: Optional new details JSON.
+            initial_value: Optional new initial value.
+            initial_value_datetime: Optional new initial value timestamp.
+            total_value: Optional new total value.
+            total_value_datetime: Optional new total value timestamp.
+            connection_data: Optional new connection JSON.
+        """
+        pass
+
+    @abstractmethod
+    def delete_wallet(self, uuid: str) -> None:
+        """
+        Soft-delete a wallet from the storage.
+
+        Args:
+            uuid: The UUID of the wallet to delete.
+        """
+        pass
+
+    # --- TRANSACTIONS ---
+    @abstractmethod
+    def get_transactions(self, query: TXQueryNode | None = None, sort: list[TXSortCriterion] | None = None, offset: int = 0, limit: int | None = None) -> list[TXTransactionBase]:
+        """
+        Retrieve a list of transactions with optional filtering, ordering, and pagination.
+
+        Args:
+            query: Optional TXQueryNode to filter the results.
+            sort: Optional list of TXSortCriterion for ordering.
+            offset: Index of the first element to return (default: 0).
+            limit: Maximum number of elements to return (default: None, no limit).
+
+        Returns:
+            List of TXTransactionBase matching the criteria.
+        """
+        pass
+
+    @abstractmethod
+    def insert_transaction(
+        self,
+        origin_transaction_uuid: str | None = None,
+        source_wallet_uuid: str | None = None,
+        target_wallet_uuid: str | None = None,
+        bot_uuid: str | None = None,
+        start_datetime: int | None = None,
+        end_datetime: int | None = None,
+        operational_mode: TXTransOperationalMode | None = None,
+        source_value: float | None = None,
+        target_value: float | None = None,
+        status: TXTransStatus | None = None,
+        annotations: str | None = None,
+        order: int = 0,
+        uuid: str | None = None,
+    ) -> str:
+        """
+        Insert a new transaction into the storage.
+
+        Args:
+            origin_transaction_uuid: Optional UUID of the origin transaction.
+            source_wallet_uuid: Optional UUID of the source wallet.
+            target_wallet_uuid: Optional UUID of the target wallet.
+            bot_uuid: Optional UUID of the bot.
+            start_datetime: Optional start timestamp.
+            end_datetime: Optional end timestamp.
+            operational_mode: Optional operational mode.
+            source_value: Optional source value.
+            target_value: Optional target value.
+            status: Optional transaction status.
+            annotations: Optional annotations.
+            order: Transaction order (default: 0).
+            uuid: Optional transaction UUID (auto-generated if None).
+
+        Returns:
+            The UUID of the inserted transaction.
+        """
+        pass
+
+    @abstractmethod
+    def update_transaction(
+        self,
+        uuid: str,
+        origin_transaction_uuid: str | None = None,
+        source_wallet_uuid: str | None = None,
+        target_wallet_uuid: str | None = None,
+        bot_uuid: str | None = None,
+        start_datetime: int | None = None,
+        end_datetime: int | None = None,
+        operational_mode: TXTransOperationalMode | None = None,
+        source_value: float | None = None,
+        target_value: float | None = None,
+        status: TXTransStatus | None = None,
+        annotations: str | None = None,
+        order: int | None = None,
+    ) -> None:
+        """
+        Update an existing transaction in the storage.
+
+        Args:
+            uuid: The UUID of the transaction to update.
+            origin_transaction_uuid: Optional new origin transaction UUID.
+            source_wallet_uuid: Optional new source wallet UUID.
+            target_wallet_uuid: Optional new target wallet UUID.
+            bot_uuid: Optional new bot UUID.
+            start_datetime: Optional new start timestamp.
+            end_datetime: Optional new end timestamp.
+            operational_mode: Optional new operational mode.
+            source_value: Optional new source value.
+            target_value: Optional new target value.
+            status: Optional new transaction status.
+            annotations: Optional new annotations.
+            order: Optional new transaction order.
+        """
+        pass
+
+    @abstractmethod
+    def delete_transaction(self, uuid: str) -> None:
+        """
+        Soft-delete a transaction from the storage.
+
+        Args:
+            uuid: The UUID of the transaction to delete.
+        """
+        pass

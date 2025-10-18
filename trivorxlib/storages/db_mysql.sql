@@ -12,10 +12,12 @@ CREATE TABLE IF NOT EXISTS `asset` (
   `asset_uuid` varchar(128) NOT NULL,
   `long_name` varchar(100) NOT NULL,
   `short_name` varchar(50) NOT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_asset`),
   UNIQUE KEY `asset_uuid_key` (`asset_uuid`),
   UNIQUE KEY `short_name` (`short_name`),
-  KEY `asset_uuid` (`asset_uuid`)
+  KEY `asset_uuid` (`asset_uuid`),
+  KEY `deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `bot` (
@@ -35,7 +37,9 @@ CREATE TABLE IF NOT EXISTS `bot` (
   UNIQUE KEY `bot_uuid` (`bot_uuid`),
   KEY `bot_uuid_key` (`bot_uuid`),
   KEY `user_uuid` (`user_uuid`),
-  KEY `algo_version` (`algo_version`)
+  KEY `algo_version` (`algo_version`),
+  KEY `deleted` (`deleted`),
+  KEY `active` (`active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `currency` (
@@ -44,9 +48,11 @@ CREATE TABLE IF NOT EXISTS `currency` (
   `long_name` varchar(50) NOT NULL,
   `short_name` varchar(10) NOT NULL,
   `currency_type` enum('FIAT','CRYPTO') NOT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_currency`),
   UNIQUE KEY `currency_uuid` (`currency_uuid`),
-  KEY `currency_uuid_key` (`currency_uuid`)
+  KEY `currency_uuid_key` (`currency_uuid`),
+  KEY `deleted` (`deleted`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `currency_exchange` (
@@ -68,13 +74,15 @@ CREATE TABLE IF NOT EXISTS `exchange_data_source` (
   `exchange_data_source_uuid` varchar(128) NOT NULL,
   `name` varchar(250) NOT NULL,
   `avaiable_currency_types` set('FIAT','CRYPTO') NOT NULL,
-  `default_for_types` set('FIAT','CRYPTO') NOT NULL,
+  `default_for_types` set('FIAT','CRYPTO') DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `connection_data_required` tinyint(1) unsigned NOT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_exchange_data_source_uuid`),
   UNIQUE KEY `name` (`name`),
   UNIQUE KEY `exchange_data_source_uuid` (`exchange_data_source_uuid`),
-  KEY `exchange_data_source_uuid_key` (`exchange_data_source_uuid`)
+  KEY `exchange_data_source_uuid_key` (`exchange_data_source_uuid`),
+  KEY `deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `exchange_data_source_connection_data` (
@@ -96,10 +104,12 @@ CREATE TABLE IF NOT EXISTS `financial_hub` (
   `name` varchar(100) NOT NULL,
   `allowed_operations` set('ASSET','CURRENCY_FIAT','CURRENCY_CRYPTO') NOT NULL,
   `notes` text DEFAULT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_financial_hub`),
   UNIQUE KEY `financial_hub_uuid` (`financial_hub_uuid`),
   UNIQUE KEY `name` (`name`),
-  KEY `financial_hub_uuid_key` (`financial_hub_uuid`)
+  KEY `financial_hub_uuid_key` (`financial_hub_uuid`),
+  KEY `deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `financial_hub_connection_data` (
@@ -118,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `financial_hub_connection_data` (
 CREATE TABLE IF NOT EXISTS `transaction` (
   `id_transaction` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `transaction_uuid` varchar(128) NOT NULL,
-  `origin_order_uuid` varchar(128) DEFAULT NULL,
+  `origin_transaction_uuid` varchar(128) DEFAULT NULL,
   `source_wallet_uuid` varchar(128) DEFAULT NULL,
   `target_wallet_uuid` varchar(128) DEFAULT NULL,
   `bot_uuid` varchar(128) DEFAULT NULL,
@@ -136,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `transaction` (
   KEY `target_wallet_uuid` (`target_wallet_uuid`),
   KEY `order` (`order`),
   KEY `bot_uuid` (`bot_uuid`),
-  KEY `origin_order_uuid` (`origin_order_uuid`)
+  KEY `origin_order_uuid` (`origin_transaction_uuid`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `user` (
@@ -157,7 +167,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `token` (`token`),
   KEY `user_uuid_key` (`user_uuid`),
   KEY `login_key` (`login`),
-  KEY `token_key` (`token`)
+  KEY `token_key` (`token`),
+  KEY `deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `wallet` (
@@ -175,11 +186,13 @@ CREATE TABLE IF NOT EXISTS `wallet` (
   `total_value` decimal(25,10) NOT NULL DEFAULT 0.0000000000,
   `total_value_datetime` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `connection_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `deleted` tinyint(1) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_wallet`),
   UNIQUE KEY `wallet_uuid` (`wallet_uuid`),
   KEY `user_uuid` (`user_uuid`),
   KEY `financial_hub_uuid` (`financial_hub_uuid`),
-  KEY `wallet_uuid_key` (`wallet_uuid`)
+  KEY `wallet_uuid_key` (`wallet_uuid`),
+  KEY `deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
