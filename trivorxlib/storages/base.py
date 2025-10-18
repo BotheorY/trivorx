@@ -1,7 +1,6 @@
+from trivorxlib.core.base import *
 from abc import ABC, abstractmethod
 from enum import Enum
-from trivorxlib.core import *
-from trivorxlib.core.base import TXBotBase
 import json
 from dataclasses import dataclass
 from typing import Any, Dict

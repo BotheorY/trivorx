@@ -1,5 +1,5 @@
-from base import *
-from trivorxlib.storages import *
+from .base import *
+from trivorxlib.storages.base import *
 
 class TXUser(TXUserBase):
 
