@@ -5,6 +5,7 @@ and concrete storage backends. Common symbols are re-exported for
 convenient access via ``trivorxlib.storages``.
 """
 
+# Query primitives and base interfaces
 from .base import (
     TXStorageQueryOps,
     TXQueryNode,
@@ -16,6 +17,7 @@ from .base import (
     TXStorageBase,
 )
 
+# Storage backends
 from .mysql import (
     TXMySQLStorage,
 )
@@ -27,10 +29,10 @@ __all__ = [
     "TXCondition",
     "TXUnaryQuery",
     "TXLogicalQuery",
-    # Sorting
+    # Sorting utilities
     "TXSortDirection",
     "TXSortCriterion",
-    # Base interface
+    # Base storage interface
     "TXStorageBase",
     # MySQL backend
     "TXMySQLStorage",
