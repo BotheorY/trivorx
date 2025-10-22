@@ -241,3 +241,6 @@ temp/
 
 # But keep JSON example files
 !**/*.json.example
+
+# Test directory and all its contents
+test/

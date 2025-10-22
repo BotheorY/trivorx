@@ -9,23 +9,30 @@ from .base import (
     TXExchangeDataSourceConnectionDataBase,
     TXFinancialHubBase, TXFinancialHubConnectionDataBase,
     TXWalletBase, TXAssetType,
-    TXTransStatus, TXTransactionBase
+    TXTransStatus, TXTransactionBase,
+    TXDataSchemaItem,
+    TXAlgo,
 )
 
 # Concrete implementations
-from .trivorx import (
+from .classes import (
     TXUser, TXBot,
     TXCurrency,
     TXExchangeDataSource, TXCurrencyExchange,
     TXExchangeDataSourceConnectionData,
     TXFinancialHub, TXFinancialHubConnectionData,
     TXWallet,
-    TXTransaction
+    TXTransaction,
+    TXUtilsEx,
 )
 
 __all__ = [
+    # Algorithms
+    "TXAlgo",
+    # Data schema item
+    "TXDataSchemaItem",
     # Utilities
-    "TXUtils",
+    "TXUtils", "TXUtilsEx",
     # User management
     "TXUserBase", "TXUserRole", "TXUser",
     # Bot management
